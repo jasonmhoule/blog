@@ -1,6 +1,9 @@
+# standard project and config files
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 blogdown
-public/ # using Netlify
+
+# using Netlify
+public/**
