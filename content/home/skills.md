@@ -24,7 +24,7 @@ weight = 70
 [[feature]]
   icon = "globe-americas"
   icon_pack = "fas"
-  name = "Driving Global Action"
+  name = "Driving Global Initiatives"
   description = " "
   
 [[feature]]
