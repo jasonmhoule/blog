@@ -1,6 +1,6 @@
 +++
-title = "Taking the Lead with Analytics"
-subtitle = "Building the Organizational Foundation"
+title = "Building the Organizational Foundation"
+subtitle = "Taking the Lead with Analytics"
 
 date = 2018-08-22T00:00:00
 # lastmod = 2018-01-13T00:00:00
@@ -10,7 +10,7 @@ draft = false
 authors = ["Jason Houle", "Dan Montgomery"]
 
 tags = ["TLA"]
-summary = "Building the Organizational Foundation"
+summary = "Taking the Lead with Analytics"
 
 # Featured image
 # To use, add an image named `featured.jpg/png` to your project's folder. 

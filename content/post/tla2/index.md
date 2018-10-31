@@ -1,6 +1,6 @@
 +++
-title = "Taking the Lead with Analytics"
-subtitle = "Hard-Won Lessons in IT"
+title = "Hard-Won Lessons in IT"
+subtitle = "Taking the Lead with Analytics"
 
 date = 2018-09-11T00:00:00
 # lastmod = 2018-09-13T00:00:00
@@ -10,7 +10,7 @@ draft = false
 authors = ["Jason Houle", "Mike Hill"]
 
 tags = ["TLA"]
-summary = "Hard-Won Lessons in IT"
+summary = "Taking the Lead with Analytics"
 
 # Featured image
 # To use, add an image named `featured.jpg/png` to your project's folder. 
