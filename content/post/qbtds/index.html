@@ -1,0 +1,171 @@
+---
+title: Visualizing Mahomes' TD Passes
+author: Jason Houle
+date: '2019-01-30'
+slug: visualizing-td-passes
+summary: A simple visualization of a remarkable feat.
+categories:
+  - football
+tags:
+  - football
+image:
+  caption: 'Image credit: [**@Chiefs**](https://twitter.com/Chiefs/status/1081271078423531520)'
+  focal_point: ''
+output:
+  blogdown::html_page:
+    highlight: default
+---
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+<p>As a lifelong Kansas City Chiefs fan, I went from pleasantly surprised to awestruck to completely incredulous as I watched Patrick Mahomes’ breakout 2018 NFL season. As his MVP-level performance continued game after game, I began to wonder: How does this feat compare with some of the all-time great season performances in TD passing? I decided to pull together some data quickly to compare.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tidyverse)
+<span class="kw">library</span>(rvest)
+<span class="kw">library</span>(curl)</code></pre></div>
+<p>I scraped data from the <a href="https://www.pro-football-reference.com">Pro Football Reference</a> single season touchdown leaders page, collecting the top seven performances for comparison.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">main_url &lt;-<span class="st"> &quot;https://www.pro-football-reference.com/leaders/pass_td_single_season.htm&quot;</span>
+url_root &lt;-<span class="st"> &quot;https://www.pro-football-reference.com&quot;</span>
+
+<span class="co"># Scrape records table</span>
+front_page &lt;-<span class="st"> </span><span class="kw">read_html</span>(<span class="kw">curl</span>(main_url))
+a &lt;-<span class="st"> </span>front_page <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">html_node</span>(<span class="dt">xpath =</span> <span class="st">&#39;//*[@id=&quot;leaders&quot;]&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">html_table</span>()
+url &lt;-<span class="st"> </span>front_page <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">html_nodes</span>(<span class="st">&quot;.left:nth-child(5) a&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">html_attr</span>(<span class="st">&quot;href&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">paste0</span>(url_root, .)
+
+<span class="co"># Build tibble</span>
+qbs &lt;-<span class="st"> </span><span class="kw">bind_cols</span>(a, <span class="kw">list</span>(<span class="dt">url =</span> url)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">head</span>(<span class="dv">7</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Player =</span> <span class="kw">trimws</span>(<span class="kw">str_extract</span>(Player, <span class="st">&quot;^[A-z ]*&quot;</span>)),
+         <span class="dt">id =</span> <span class="kw">paste0</span>(Tm, Year))
+
+qbs</code></pre></div>
+<pre><code>##   Rank          Player TD Year  Tm
+## 1    1  Peyton Manning 55 2013 DEN
+## 2    2       Tom Brady 50 2007 NWE
+## 3   NA Patrick Mahomes 50 2018 KAN
+## 4    4  Peyton Manning 49 2004 IND
+## 5    5      Dan Marino 48 1984 MIA
+## 6    6      Drew Brees 46 2011 NOR
+## 7    7   Aaron Rodgers 45 2011 GNB
+##                                                         url      id
+## 1 https://www.pro-football-reference.com/teams/den/2013.htm DEN2013
+## 2 https://www.pro-football-reference.com/teams/nwe/2007.htm NWE2007
+## 3 https://www.pro-football-reference.com/teams/kan/2018.htm KAN2018
+## 4 https://www.pro-football-reference.com/teams/clt/2004.htm IND2004
+## 5 https://www.pro-football-reference.com/teams/mia/1984.htm MIA1984
+## 6 https://www.pro-football-reference.com/teams/nor/2011.htm NOR2011
+## 7 https://www.pro-football-reference.com/teams/gnb/2011.htm GNB2011</code></pre>
+<p>I wanted to break down the season game-by-game, and so I needed to scrape season pages. This proved a little trickier than I had hoped; while team season pages include a consolidated touchdown log, that field is apparently dynamically populated as the page loads, so it can’t be retrieved with a <code>curl</code> command. Instead, I needed to access each boxscore link and scrape the number of touchdown passes in the game. (I figure there are alternatives using <a href="https://cran.r-project.org/web/packages/RSelenium/">RSelenium</a> or a different data source like <a href="https://github.com/maksimhorowitz/nflscrapR"><code>nflscrapR</code></a>, but I was too far down this path to switch!) For each season I built the cumulative TD pass totals by game as a data frame, and then within the <code>for</code> loop I appended these to create a list of dataframes, which were then added as a <a href="https://jennybc.github.io/purrr-tutorial/ls13_list-columns.html">list column</a> to my main dataframe.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Scrape each QB season page</span>
+season &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="st">&quot;list&quot;</span>, <span class="kw">length</span>(qbs[[<span class="st">&quot;id&quot;</span>]]))
+
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(qbs[[<span class="st">&quot;url&quot;</span>]])) {
+  num_games &lt;-<span class="st"> </span><span class="dv">16</span>
+  
+  page_html &lt;-<span class="st"> </span><span class="kw">read_html</span>(<span class="kw">curl</span>(qbs[[<span class="st">&quot;url&quot;</span>]][i]))
+  game_links &lt;-<span class="st"> </span>page_html <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">html_nodes</span>(<span class="st">&quot;.center a&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">html_attr</span>(<span class="st">&quot;href&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">head</span>(num_games)
+  
+  game &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>num_games
+  tds &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="st">&quot;integer&quot;</span>, num_games)
+  
+  <span class="cf">for</span> (g <span class="cf">in</span> <span class="kw">seq_along</span>(game_links)) {
+    scoring &lt;-<span class="st"> </span><span class="kw">read_html</span>(<span class="kw">curl</span>(<span class="kw">paste0</span>(url_root, game_links[g]))) <span class="op">%&gt;%</span>
+<span class="st">      </span><span class="kw">html_node</span>(<span class="st">&quot;#scoring&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">      </span><span class="kw">html_table</span>()
+    tds[g] &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">grep</span>(<span class="kw">paste0</span>(<span class="st">&quot;yard pass from &quot;</span>, qbs<span class="op">$</span>Player[i]), scoring<span class="op">$</span>Detail))
+  }
+  
+  season[[i]] &lt;-<span class="st"> </span><span class="kw">data_frame</span>(<span class="dt">game =</span> game, <span class="dt">tds =</span> <span class="kw">cumsum</span>(tds))
+  
+}
+
+qbs &lt;-<span class="st"> </span>qbs <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">bind_cols</span>(<span class="kw">data_frame</span>(<span class="dt">season =</span> season)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>()</code></pre></div>
+<p>Inspired by another <a href="https://www.swissinfo.ch/eng/business/age-of-success_federer-s-path-to-18-grand-slam-tennis-titles/42919320">visualization of athletic prowess</a>, I decided to create a step chart. With a quick unnest of the list column (and a quick call to <code>mutate</code> to add the year since Peyton Manning shows up in this list twice!), I whipped up a first attempt, and…</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qbs <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest</span>(season) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Player =</span> <span class="kw">as.factor</span>(<span class="kw">paste</span>(Player, Year))) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> game, <span class="dt">y =</span> tds, <span class="dt">color =</span> Player)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_step</span>()</code></pre></div>
+<p><img src="/post/qbtds/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>The output was… underwhelming. Most pressing is the line overlap: since each vertical line occurs at an integer, there is a lot of overlap of vertical lines (and many horizontal lines are also obscured, for example in week 14), making it difficult to track one player’s performance. Additionally, it would definitely boost interpretability to order the players’ appearance in the legend by their season-end totals (which should correspond to their position on the plot, at least by Week 16), and to include those totals in the legend. Finally, for both readability and authenticity, I wanted to use colors that correspond to the player’s team rather than the <code>ggplot2</code> defaults.</p>
+<p>I started by pulling NFL team colors from <a href="https://teamcolorcodes.com/nfl-team-color-codes/">this website</a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">palette &lt;-<span class="st"> </span><span class="kw">tribble</span>(
+  <span class="op">~</span>Tm, <span class="op">~</span>color,
+  <span class="st">&quot;DEN&quot;</span>, <span class="st">&quot;#FB4F14&quot;</span>,
+  <span class="st">&quot;NWE&quot;</span>, <span class="st">&quot;#B0B7BC&quot;</span>,
+  <span class="st">&quot;KAN&quot;</span>, <span class="st">&quot;#E31837&quot;</span>,
+  <span class="st">&quot;IND&quot;</span>, <span class="st">&quot;#002C5F&quot;</span>,
+  <span class="st">&quot;MIA&quot;</span>, <span class="st">&quot;#008E97&quot;</span>,
+  <span class="st">&quot;NOR&quot;</span>, <span class="st">&quot;#D3BC8D&quot;</span>,
+  <span class="st">&quot;GNB&quot;</span>, <span class="st">&quot;#203731&quot;</span>
+)</code></pre></div>
+<p><code>scale_color_manual</code> needs a named vector to use these, with names corresponding to the value assigned to the <code>color</code> aesthetic. This means I’ll have to mutate the player names <em>first</em> and create the named vector from an intermediate data frame. While I’m already in the mutate call, I also apply a ‘jitter’ to both the <code>game</code> and <code>tds</code> values so that each line segment is slightly offset from any others it might be overlapping. I then create the named vector and finally plot the jittered data, using a thicker than default line size and adding some labels, the manual color scale, and a minimal theme.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qbs <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">unnest</span>(season) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Player =</span> <span class="kw">factor</span>(<span class="kw">paste</span>(Player, Year, <span class="kw">paste0</span>(<span class="st">&quot;(&quot;</span>,TD,<span class="st">&quot;)&quot;</span>), <span class="dt">sep =</span> <span class="st">&quot;, &quot;</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">fct_inorder</span>(),
+         <span class="dt">game =</span> game <span class="op">+</span><span class="st"> </span>.<span class="dv">05</span> <span class="op">*</span><span class="st"> </span><span class="kw">as.integer</span>(Player) <span class="op">-</span><span class="st"> </span>.<span class="dv">2</span>,
+         <span class="dt">tds =</span> tds <span class="op">+</span><span class="st"> </span>.<span class="dv">1</span> <span class="op">*</span><span class="st"> </span><span class="kw">as.integer</span>(Player) <span class="op">-</span><span class="st"> </span>.<span class="dv">4</span>) -&gt;<span class="st"> </span>qbs2
+
+qbs2 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">left_join</span>(palette, <span class="dt">by =</span> <span class="st">&quot;Tm&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">distinct</span>(Player, color) -&gt;<span class="st"> </span>color_df
+
+color_lookup &lt;-<span class="st"> </span><span class="kw">setNames</span>(color_df<span class="op">$</span>color, <span class="kw">as.character</span>(color_df<span class="op">$</span>Player))
+
+qbs2 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> game, <span class="dt">y =</span> tds, <span class="dt">color =</span> Player)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_step</span>(<span class="dt">size =</span> .<span class="dv">8</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ggtitle</span>(<span class="st">&quot;Season Passing Touchdown Count by Game&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;Game number&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Passing Touchdown Count&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> color_lookup) <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<p><img src="/post/qbtds/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>There might be a few opportunities for improvement yet, but I think these come with tradeoffs: for instance, the amount of jitter could be increased to further reduce overlap, but this would come at the cost of readability. Some of the colors could be made more dissimilar (for instance, Manning ’04 and Rodgers), but this would sacrifice some authenticity of using the official team colors.</p>
+<p>All in all, this visualization packs in a lot of data and offers a side-by-side comparison of how Mahomes’ MVP season stacks up with some of the best historical performances.</p>
